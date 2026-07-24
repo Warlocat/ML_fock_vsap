@@ -1,0 +1,84 @@
+{
+  "feature_list_ii": [
+    "fock_saiaovsap",
+    "hcore_kin_saiaovsap",
+    "dm_saiaovsap",
+    "boys_saiaovsap"
+  ],
+  "feature_list_ij": [
+    "fock_saiaovsap",
+    "vsap_saiaovsap",
+    "dm_saiaovsap",
+    "hcore_kin_saiaovsap"
+  ],
+  "targets": [
+    "delta_fock_saiaovsap"
+  ],
+  "torch_data_root": "artifacts/qm9_1000/torch_data",
+  "exclude_core": false,
+  "custom_minao_path": "mlvk/basis/minao_cvs",
+  "edge_cutoff": 0.0,
+  "edge_cutoff_features": [
+    "vsap_saiaovsap"
+  ],
+  "basis_set": "ccpvdz",
+  "basis": "saiaovsap_crude",
+  "precision": "double",
+  "round_off": null,
+  "train_files": [
+    "/path/to/qm9/checkpoints/000001.chk"
+  ],
+  "gnn_model_file": "artifacts/qm9_1000/model.joblib",
+  "model_alias": "GNN_Multiblock_faster",
+  "model_kwargs": {
+    "scale": 0.01,
+    "core-core_model_kwargs": {
+      "n_out": 1,
+      "node_input": 36,
+      "edge_input": 36,
+      "node_nhidden": 128,
+      "edge_nhidden": 128,
+      "mpl_channels": 64,
+      "message_passing_updates": 2,
+      "precision": "double",
+      "light": false
+    },
+    "valence-valence_model_kwargs": {
+      "n_out": 1,
+      "node_input": 36,
+      "edge_input": 36,
+      "node_nhidden": 256,
+      "edge_nhidden": 256,
+      "mpl_channels": 128,
+      "message_passing_updates": 4,
+      "precision": "double",
+      "light": false
+    },
+    "idx_fock_sum": [
+      0
+    ]
+  },
+  "loss_kwargs": {
+    "beta_mo": 0.1,
+    "beta_dm": 0.05,
+    "beta_dipole": 0.05
+  },
+  "train_config": {
+    "epochs": 500,
+    "learning_rate": 0.0005,
+    "init_loss_epoch": 200,
+    "batch_size": 10,
+    "shuffle": false,
+    "cosine_t0": 100,
+    "cos_range": [
+      100,
+      1000
+    ],
+    "num_workers": 4,
+    "subgraph_learning": true,
+    "amp": false,
+    "loss_blocks": [
+      1
+    ]
+  }
+}

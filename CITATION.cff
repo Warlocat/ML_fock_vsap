@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+title: ML-Fock with vSAP features
+message: If you use this software, please cite the associated manuscript.
+type: software
+authors:
+  - family-names: Zhang
+    given-names: Chaoqun
+  - family-names: Venturella
+    given-names: Christian
+  - family-names: Chen
+    given-names: Enzhi
+  - family-names: Zhu
+    given-names: Tianyu
+version: 0.1.0
+date-released: 2026-07-24
+license: GPL-3.0-only
+repository-code: https://github.com/Warlocat/ML_fock_vsap
+preferred-citation:
+  type: article
+  title: Transferable Machine Learning of Electronic Hamiltonians with Superposition-of-Atomic-Potentials Features
+  authors:
+    - family-names: Zhang
+      given-names: Chaoqun
+    - family-names: Venturella
+      given-names: Christian
+    - family-names: Chen
+      given-names: Enzhi
+    - family-names: Zhu
+      given-names: Tianyu
+  year: 2026
+  doi: 10.48550/arXiv.2606.12326

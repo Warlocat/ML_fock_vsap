@@ -1,0 +1,8 @@
+{
+  "chkfiles": [
+    "/path/to/qm9/ccpvtz/checkpoints/000001.chk"
+  ],
+  "model_files": [
+    "artifacts/qm9_downfold_1000/model.joblib"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "feature_list_ii": [
+    "fock_saiaovsap_downfold",
+    "hcore_kin_saiaovsap_downfold",
+    "dm_saiaovsap_downfold",
+    "fock_AA_saiaovsap_downfold",
+    "fock_hyb_saiaovsap_downfold",
+    "boys_saiaovsap_downfold"
+  ],
+  "feature_list_ij": [
+    "fock_saiaovsap_downfold",
+    "vsap_saiaovsap_downfold",
+    "dm_saiaovsap_downfold",
+    "fock_AA_saiaovsap_downfold",
+    "fock_hyb_saiaovsap_downfold",
+    "hcore_kin_saiaovsap_downfold"
+  ],
+  "targets": [
+    "fock_true_saiaovsap_downfold_exact"
+  ],
+  "torch_data_root": "artifacts/qm9_downfold_1000/torch_data",
+  "exclude_core": false,
+  "custom_minao_path": "mlvk/basis/minao_cvs",
+  "edge_cutoff": 0.0,
+  "edge_cutoff_features": [
+    "vsap_saiaovsap_downfold"
+  ],
+  "basis_set": "ccpvtz",
+  "basis": "saiaovsap_crude_downfold",
+  "precision": "double",
+  "round_off": null,
+  "train_files": [
+    "/path/to/qm9/ccpvtz/checkpoints/000001.chk"
+  ],
+  "gnn_model_file": "artifacts/qm9_downfold_1000/model.joblib",
+  "model_alias": "GNN_Multiblock_faster",
+  "model_kwargs": {
+    "scale": 0.01,
+    "core-core_model_kwargs": {
+      "n_out": 1,
+      "node_input": 54,
+      "edge_input": 54,
+      "node_nhidden": 128,
+      "edge_nhidden": 128,
+      "mpl_channels": 64,
+      "message_passing_updates": 2,
+      "precision": "double",
+      "light": false
+    },
+    "valence-valence_model_kwargs": {
+      "n_out": 1,
+      "node_input": 54,
+      "edge_input": 54,
+      "node_nhidden": 256,
+      "edge_nhidden": 256,
+      "mpl_channels": 128,
+      "message_passing_updates": 4,
+      "precision": "double",
+      "light": false
+    },
+    "idx_fock_sum": [
+      0
+    ]
+  },
+  "loss_kwargs": {
+    "beta_mo": 0.1,
+    "beta_dm": 0.05
+  },
+  "train_config": {
+    "epochs": 500,
+    "learning_rate": 0.0005,
+    "init_loss_epoch": 200,
+    "batch_size": 10,
+    "shuffle": false,
+    "cosine_t0": 100,
+    "cos_range": [
+      100,
+      1000
+    ],
+    "num_workers": 4,
+    "subgraph_learning": true,
+    "amp": false,
+    "loss_blocks": [
+      1
+    ]
+  },
+  "downfold_basis_set": "minao"
+}
