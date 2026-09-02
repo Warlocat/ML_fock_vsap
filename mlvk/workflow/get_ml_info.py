@@ -128,6 +128,14 @@ def validate_model_mol(chk_file, model_joblib_file):
     validation_results['lumo_ml'] = mo_ml[nocc]
     validation_results['lumo_true'] = mlf_true['mo_energy'][nocc]
 
+    ovlp_ml_true = mo_coeff_ml.T @ S_ao @ mlf_true['mo_coeff']
+    proj_occ = ovlp_ml_true[:nocc, :nocc] @ ovlp_ml_true[:nocc, :nocc].T
+    ovlp_ml_true = ovlp_ml_true.diagonal()
+    validation_results['ovlp_ml_true_occ'] = 1.0/nocc * np.sum(np.abs(ovlp_ml_true[:nocc]))
+    validation_results['ovlp_ml_true_all'] = 1.0/mlf_true['mo_coeff'].shape[1] * np.sum(np.abs(ovlp_ml_true))
+    e_proj, c_proj = scipy.linalg.eigh(proj_occ)
+    validation_results['ovlp_proj_occ'] = 1.0/nocc * np.sum(e_proj)
+
     # nonorth basis
     if basis not in ['salao', 'lao', 'saiao', 'iao', 'mo']:
         S_lo_inv = np.linalg.inv(S_lo)

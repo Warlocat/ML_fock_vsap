@@ -4,6 +4,59 @@ This repository is the reproducibility release for **“Transferable Machine Lea
 
 The code predicts a correction to a low-cost vSAP Hamiltonian in a symmetry-adapted intrinsic atomic-orbital basis. The retained GNN learns core–core and valence–valence matrix blocks separately. The resulting Fock matrix can be diagonalized for orbital energies and density-derived observables or transformed back to the AO basis for transfer-integral calculations.
 
+## Software design
+
+ML-Fock is organized as a layered molecular-data and learning pipeline. `mlvk.data` reads PySCF checkpoints into lightweight molecular containers; `mlvk.lo` and `mlvk.lib` construct the SAIAO-vSAP basis and physics-informed matrix features; and `GNN_Model` applies fitted preprocessing, converts orbital diagonal/off-diagonal matrix elements into PyTorch Geometric nodes and edges, and owns the configuration and trained state needed for inference. The production network contains separate message-passing modules for the core–core and valence–valence blocks, while `VKLoss` combines matrix-element error with optional orbital-energy, density-matrix, and dipole penalties. Higher-level modules provide checkpoint generation, large-basis downfolding, validation, and transfer-integral analysis. Configuration is kept in JSON, and a serialized `GNN_Model` wrapper packages the feature definitions, scaler, architecture metadata, and model weights so the same transformation is used during training and prediction.
+
+```text
+XYZ / PySCF checkpoint
+        ↓
+SAIAO-vSAP basis and matrix features
+        ↓
+feature scaling and orbital graph construction
+        ↓
+core-core GNN + valence-valence GNN
+        ↓
+predicted Fock correction → Fock matrix → orbitals and observables
+```
+
+## Capabilities
+
+- Generate molecular PySCF checkpoints from XYZ geometries and load existing calculations.
+- Construct SAIAO-vSAP node and edge features, including custom core/valence MINAO definitions.
+- Train and evaluate the production two-block message-passing GNN in single or double precision.
+- Predict full Fock-matrix corrections and recover orbital energies, density matrices, charges, and dipole observables.
+- Downfold cc-pVTZ Hamiltonians into a MINAO-size active space and reconstruct parent-space orbitals for validation.
+- Evaluate conventional 2x2 and gauge-invariant 4x4 intermolecular transfer integrals.
+- Reproduce the reported QM9 subsets using the supplied split identifiers and configurations.
+
+## Installation
+
+The package requires Python 3.10 or newer. A CUDA-enabled PyTorch installation is recommended for training but is not required for preprocessing, inference, or the tests.
+
+```bash
+git clone git@github.com:Warlocat/ML_fock_vsap.git
+cd ML_fock_vsap
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[test]"
+```
+
+The molecular SAIAO feature code additionally requires libDMET 0.5, and vSAP feature generation requires a PySCF build that provides `RKS.get_vsap`. These two external components are used by the reference production environment but are not vendored here. Verify the environment before running data preparation:
+
+```bash
+python - <<'PY'
+from pyscf import gto, scf
+import libdmet
+
+mol = gto.M(atom="H 0 0 0; H 0 0 0.74", basis="sto-3g")
+assert hasattr(scf.RKS(mol), "get_vsap")
+print("vSAP and libDMET are available")
+PY
+python -m pytest
+```
+
 
 ## Repository layout
 
@@ -70,6 +123,25 @@ The example preserves the final 1,000-molecule hyperparameters: scale 0.01; hidd
 
 `prepare_data.py` serializes the fitted data wrapper and processed PyTorch graphs. `train.py` appends the trained state dictionary and architecture metadata to that wrapper and also writes a `_wts.pt` file.
 
+### Prediction with a trained model
+
+A trained `.joblib` file contains the preprocessing state, feature specification, architecture, and model weights. Predicting from a compatible PySCF checkpoint returns an `(n_orbital, n_orbital, n_target)` tensor in the learning basis:
+
+```python
+import joblib
+import numpy as np
+
+model = joblib.load("artifacts/qm9_1000/model.joblib")
+delta_fock = model.predict_vk("/path/to/molecule.chk")[:, :, 0]
+
+basis_name = model.basis.split("_")[0]
+fock_ml = model.pdata[f"fock_{basis_name}"] + delta_fock
+mo_energy, mo_coeff = np.linalg.eigh(fock_ml)
+print(mo_energy)
+```
+
+The input checkpoint must use the basis, functional, and stored fields expected by the trained configuration. `model.pdata` holds the features generated for the most recent prediction; `C_ao_<basis>` and `C_<basis>_ao` can be used to transform matrices between the learning and AO bases.
+
 ## Reproducing the cc-pVTZ downfolding runs
 
 The downfolding production configuration is in `examples/qm9_downfold/config.json`. It uses a cc-pVTZ parent calculation, projects to the MINAO-size SAIAO-vSAP active space, and has 54 node and edge input channels. Its target is the exactly downfolded converged cc-pVTZ Fock matrix, `fock_true_saiaovsap_downfold_exact`. Exact split lists are supplied for 1k, 2k, 4k, 8k, 16k, and 32k molecules.
@@ -124,3 +196,7 @@ The geometry directory contains three examples sampled from the 2,000-geometry b
 ## License
 
 GPL-3.0. See `LICENSE`.
+
+## Use of generative AI
+
+OpenAI Codex, powered by OpenAI GPT-5 (model version: GPT-5.6 Sol; accessed through the Codex desktop application), was used in preparing this public software release to assist with codebase review, selection and refactoring of production code, documentation, portable usage examples, and automated tests. All AI-assisted changes were reviewed, edited, and validated by the authors. The AI system was not used to generate the underlying quantum-chemistry calculations or training data, and the authors take full responsibility for the software and its scientific use.
