@@ -1,6 +1,6 @@
 # ML-Fock with vSAP features
 
-This repository is the reproducibility release for **“Transferable Machine Learning of Electronic Hamiltonians with Superposition-of-Atomic-Potentials Features”** by Chaoqun Zhang, Christian Venturella, Enzhi Chen, and Tianyu Zhu. It contains the molecular SAIAO-vSAP data pipeline, the two-block graph neural network used in production, the reported training objective, exact QM9 learning-curve split identifiers, and representative benzene-dimer geometries and transfer-integral analysis.
+This repository is the reproducibility release for **“Transferable Machine Learning of Electronic Hamiltonians with Superposition-of-Atomic-Potentials Features”** by Chaoqun Zhang, Christian Venturella, Enzhi Chen, and Tianyu Zhu [doi: https://doi.org/10.1021/acs.jctc.6c01477]. It contains the molecular SAIAO-vSAP data pipeline, the two-block graph neural network used in production, the reported training objective, exact QM9 learning-curve split identifiers, and representative benzene-dimer geometries and transfer-integral analysis.
 
 The code predicts a correction to a low-cost vSAP Hamiltonian in a symmetry-adapted intrinsic atomic-orbital basis. The retained GNN learns core–core and valence–valence matrix blocks separately. The resulting Fock matrix can be diagonalized for orbital energies and density-derived observables or transformed back to the AO basis for transfer-integral calculations.
 
